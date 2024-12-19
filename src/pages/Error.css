@@ -1,0 +1,54 @@
+/* Error Page Styles */
+
+.error-page {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    background-color: #f7f8fa;
+  }
+  
+  .error-content {
+    text-align: center;
+    background-color: #fff;
+    padding: 3rem;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  }
+  
+  .error-content h1 {
+    font-size: 3rem;
+    color: #e74c3c;
+    margin-bottom: 1.2rem;
+  }
+  
+  .error-content p {
+    font-size: 1.2rem;
+    color: #7f8c8d;
+    margin-bottom: 2rem;
+  }
+  
+  .error-btn {
+    padding: 15px 30px;
+    font-size: 1.2rem;
+    background-color: #e74c3c;
+    color: white;
+    border: none;
+    border-radius: 30px;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.3s ease;
+  }
+  
+  .error-btn:hover {
+    background-color: #c0392b;
+    transform: scale(1.05);
+  }
+  
+  .error-btn:focus {
+    outline: none;
+  }
+  
+  .error-btn:active {
+    transform: scale(1);
+  }
+  
