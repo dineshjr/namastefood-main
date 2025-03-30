@@ -67,11 +67,11 @@ const Body = () => {
       </div>
 
       {/* Restaurant List */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 px-5 py-5">
-        {searchResult.map((restaurant) => (
-          <RestaurantCard key={restaurant.info.id} restaurants={restaurant} />
-        ))}
-      </div>
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-8 p-4 m-4">
+  {searchResult.map((restaurant) => (
+    <RestaurantCard key={restaurant.info.id} restaurants={restaurant} />
+  ))}
+</div>
 
       {/* Footer */}
       <Footer />
