@@ -1,107 +1,80 @@
-import { useState, useEffect } from "react";
 import Shimmer from "./Shimmer";
 import Footer from "./Footer";
-import { Link } from "react-router";
+import RestaurantCard from "./RestaurantCard";
+import useRestaurantData from "../customhooks/useRestaurantData";
+import useStatus from "../customhooks/useStatus";
 
 const Body = () => {
-  const [listOfRes, setListOfRes] = useState([]);
-  const [query, setQuery] = useState("");
-  const [searchResult, setsearchResult] = useState([]);
-  useEffect(() => {
-    fetchData();
-  }, []);
+  const {
+    listOfRes,
+    query,
+    searchResult,
+    setQuery,
+    handleSearch,
+    handleFilterTopRated,
+  } = useRestaurantData();
 
-  const fetchData = async () => {
-    const response = await fetch(
-      "https://www.swiggy.com/dapi/restaurants/list/v5?lat=13.0843007&lng=80.2704622&is-seo-homepage-enabled=true&page_type=DESKTOP_WEB_LISTING"
+  const { onlineStatus } = useStatus();
+
+  if (!onlineStatus)
+    return (
+      <div className="flex flex-row items-center justify-center h-screen bg-gray-50">
+        <div className="flex items-center space-x-3 bg-red-100 text-red-700 px-6 py-3 rounded-lg shadow-lg">
+          <span className="w-4 h-4 bg-red-500 rounded-full animate-pulse"></span>
+          <h1 className="text-lg font-semibold">
+            Please Check Your Internet Connection
+          </h1>
+        </div>
+      </div>
     );
-    const json = await response.json();
-    const restaurants =
-      json?.data?.cards[4]?.card?.card?.gridElements?.infoWithStyle
-        ?.restaurants;
-      setListOfRes(restaurants);
-      setsearchResult(restaurants);
-    
-  };
 
   return listOfRes.length === 0 ? (
     <Shimmer count={100} />
   ) : (
     <>
-      {/* Render the content after the data is fetched */}
+      {/* Online Status Indicator */}
+      <div className="flex justify-center py-2 bg-green-100 text-green-800 text-sm font-semibold shadow-md">
+        <span className="w-3 h-3 bg-green-500 rounded-full animate-ping mr-2"></span>
+        You are online
+      </div>
 
-      {/* Search Section */}
-      <div className="search-filter-container">
-        <div className="search-container">
-          <input
-            type="text"
-            placeholder="Search for a restaurant..."
-            className="search-input"
-            value={query}
-            onChange={() => {
-              setQuery(event.target.value);
-            }}
-          />
-          <button
-            className="search-btn"
-            onClick={() => {
-              const searchList = listOfRes.filter((res) =>
-                res.info.name.toLowerCase().includes(query.toLowerCase())
-              );
-              setsearchResult(searchList);
-            }}
-          >
-            Search
-          </button>
-        </div>
+      {/* Search & Filter Section */}
+      <div className="max-w-5xl mx-auto py-8 px-4 md:px-0">
+        <div className="flex flex-col md:flex-row items-center justify-between gap-6">
+          <div className="relative w-full md:w-2/3">
+            <input
+              type="text"
+              placeholder="🔍 Search for a restaurant..."
+              className="w-full p-4 border border-gray-300 rounded-full shadow-md focus:outline-none focus:ring-2 focus:ring-orange-400 transition-all"
+              value={query}
+              onChange={(event) => setQuery(event.target.value)}
+            />
+            <button
+              className="absolute right-3 top-1/2 transform -translate-y-1/2 bg-orange-500 text-white px-6 py-2 rounded-full shadow-md hover:bg-orange-600 transition-all"
+              onClick={handleSearch}
+            >
+              Search
+            </button>
+          </div>
 
-        <div className="filter">
           <button
-            className="filter-btn"
-            onClick={() => {
-              const filteredList = listOfRes.filter(
-                (res) => res.info.avgRating > 4.3
-              );
-              setsearchResult(filteredList);
-            }}
+            className="px-6 py-3 bg-gradient-to-r from-gray-800 to-gray-900 text-white font-medium rounded-full shadow-lg hover:scale-105 transition-all"
+            onClick={handleFilterTopRated}
           >
-            Top Rated Restaurants
+            ⭐ Top Rated Restaurants
           </button>
         </div>
       </div>
 
       {/* Restaurant List */}
-      <div className="restaurant-list">
-        {searchResult.map((restaurant) => {
-          const restaurantData = restaurant.info;
-          if (!restaurantData) return null;
-
-          return (
-            <div key={restaurantData.id} className="card">
-              <img
-                src={`https://media-assets.swiggy.com/swiggy/image/upload/fl_lossy,f_auto,q_auto,w_660/${restaurantData.cloudinaryImageId}`}
-                alt={restaurantData.name}
-                className="w-full h-48 object-cover rounded"
-              />
-              <h3 className="font-semibold">{restaurantData.name}</h3>
-              <p>
-                {restaurantData.locality}, {restaurantData.areaName}
-              </p>
-              <p>{restaurantData.costForTwo}</p>
-              <div>
-                <span className="font-semibold text-green-500">
-                  {restaurantData.avgRating} ⭐
-                </span>
-                <span>{restaurantData.totalRatingsString}</span>
-              </div>
-              <p>{restaurantData.cuisines.join(", ")}</p>
-              <Link to={`/restaurants/${restaurant.info.id}`}>View Menu</Link>
-            </div>
-          );
-        })}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 px-5 py-5">
+        {searchResult.map((restaurant) => (
+          <RestaurantCard key={restaurant.info.id} restaurants={restaurant} />
+        ))}
       </div>
 
       {/* Footer */}
+      <Footer />
     </>
   );
 };

@@ -1,112 +1,125 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { useParams } from "react-router";
-import '../pages/Resmenu.css';
+import useFetchMenu from "../customhooks/useRestaurantMenu";
 
 const MenuPage = () => {
-  const [menuItem, setMenuItem] = useState([]);
-  const [resName, setResName] = useState("");
-  const [currentPage, setCurrentPage] = useState(1);
-  const [itemsPerPage] = useState(6); // You can adjust the number of items per page
   const { restaurantId } = useParams();
+  const { menuItems, restaurantName, loading, error } =
+    useFetchMenu(restaurantId);
 
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage] = useState(6); // Adjust as needed
 
-  useEffect(() => {
-    if (restaurantId) {
-      fetchMenu();
-    }
-  }, [restaurantId]);
-
-  const fetchMenu = async () => {
-    try {
-      const response = await fetch(
-        `https://www.swiggy.com/dapi/menu/pl?page-type=REGULAR_MENU&complete-menu=true&lat=13.0843007&lng=80.2704622&restaurantId=${restaurantId}&catalog_qa=undefined&submitAction=ENTER`
-      );
-      
-      const json = await response.json();
-      const resName = json?.data?.cards[0]?.card?.card?.text;
-      setResName(resName);
-
-      const cards = json?.data?.cards[4]?.groupedCard?.cardGroupMap?.REGULAR?.cards || [];
-      const cardData = cards
-        .map((card) => card?.card?.card?.itemCards)
-        .flat()
-        .filter(Boolean);
-
-      setMenuItem(cardData); // Set the menu items in the state
-      console.log(cardData)
-    } catch (error) {
-      console.error("Error fetching menu:", error);
-    }
-  };
+  // Group menu items by category
+  const categorizedItems = menuItems.reduce((acc, item) => {
+    const category = item?.card?.info?.category || "Uncategorized";
+    if (!acc[category]) acc[category] = [];
+    acc[category].push(item);
+    return acc;
+  }, {});
 
   // Pagination logic
-  const indexOfLastItem = currentPage * itemsPerPage;
-  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-  const currentItems = menuItem.slice(indexOfFirstItem, indexOfLastItem);
+  const categoryKeys = Object.keys(categorizedItems);
+  const totalPages = Math.ceil(categoryKeys.length / itemsPerPage);
+  const currentCategories = categoryKeys.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  );
 
-  const totalPages = Math.ceil(menuItem.length / itemsPerPage);
+  const nextPage = () =>
+    currentPage < totalPages && setCurrentPage((prev) => prev + 1);
+  const prevPage = () => currentPage > 1 && setCurrentPage((prev) => prev - 1);
 
-  const nextPage = () => {
-    if (currentPage < totalPages) {
-      setCurrentPage(prev => prev + 1);
-    }
-  };
-
-  const prevPage = () => {
-    if (currentPage > 1) {
-      setCurrentPage(prev => prev - 1);
-    }
-  };
+  if (loading)
+    return (
+      <div className="text-center text-gray-600 text-lg py-10">
+        Loading menu...
+      </div>
+    );
+  if (error)
+    return (
+      <div className="text-center text-red-500 text-lg py-10">
+        Error: {error}
+      </div>
+    );
 
   return (
-    <div className="menu-page">
-      <h1 className="menu-title">{resName}</h1>
+    <div className="max-w-5xl mx-auto px-4 py-6">
+      <h1 className="text-3xl font-bold text-orange-500 text-center mb-6">
+        {restaurantName}
+      </h1>
 
-      {/* Render menu items */}
-      <div className="menu-list">
-        {currentItems.length > 0 ? (
-          currentItems.map((item, index) => {
-            const details = item?.card?.info; // Access details for the menu item
-            console.log(details)
-            if (!details) {
-              return null; // Skip rendering if details are missing
-            }
+      {/* Category-Based Menu Display */}
+      {currentCategories.map((category) => (
+        <div key={category} className="mb-8">
+          <h2 className="text-2xl font-semibold text-gray-700 border-b-2 border-orange-500 pb-2">
+            {category}
+          </h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-4">
+            {categorizedItems[category].map((item, index) => {
+              const details = item?.card?.info;
+              if (!details) return null;
 
-            const price = details?.price / 100 || details?.defaultPrice / 100 || 0;
+              const price =
+                details?.price / 100 || details?.defaultPrice / 100 || 0;
 
-            return (
-              <div key={index} className="menu-item-card">
-                <div className="menu-item-left">
+              return (
+                <div
+                  key={index}
+                  className="bg-white rounded-lg shadow-md p-4 hover:shadow-lg transition"
+                >
                   <img
-                    className="menu-item-image"
+                    className="w-full h-40 object-cover rounded-md mb-3"
                     src={`https://media-assets.swiggy.com/swiggy/image/upload/fl_lossy,f_auto,q_auto,w_300,h_300,c_fit/${details?.imageId}`}
                     alt={details?.name}
                   />
+                  <h3 className="text-lg font-semibold text-gray-800 truncate">
+                    {details?.name}
+                  </h3>
+                  <p className="text-sm text-gray-500 line-clamp-2">
+                    {details?.description || "Delicious food item"}
+                  </p>
+                  <p className="text-lg font-semibold text-orange-500 mt-2">
+                    ₹{price.toFixed(2)}
+                  </p>
+                  <button className="w-full mt-3 bg-orange-500 text-white py-2 rounded-md hover:bg-orange-600 transition">
+                    Add to Cart
+                  </button>
                 </div>
-                <div className="menu-item-right">
-                  <h2 className="menu-item-name">{details?.name}</h2>
-                  <p className="menu-item-description">{details?.description}</p>
-                  <p className="menu-item-price">₹{price.toFixed(2)}</p>
-                  <button className="order-btn">Order Now</button>
-                </div>
-              </div>
-            );
-          })
-        ) : (
-          <div>Loading menu...</div> // Show loading state if menu items are not loaded
-        )}
-      </div>
+              );
+            })}
+          </div>
+        </div>
+      ))}
 
       {/* Pagination Controls */}
-      <div className="pagination">
-        <button onClick={prevPage} disabled={currentPage === 1}>
-          Previous
-        </button>
-        <span>{`Page ${currentPage} of ${totalPages}`}</span>
-        <button onClick={nextPage} disabled={currentPage === totalPages}>
-          Next
-        </button>
-      </div>
+      {totalPages > 1 && (
+        <div className="flex justify-center items-center space-x-4 mt-6">
+          <button
+            onClick={prevPage}
+            disabled={currentPage === 1}
+            className={`px-4 py-2 border rounded-md ${
+              currentPage === 1
+                ? "text-gray-400 border-gray-300"
+                : "text-orange-500 border-orange-500 hover:bg-orange-500 hover:text-white"
+            }`}
+          >
+            Previous
+          </button>
+          <span className="text-gray-600 font-semibold">{`Page ${currentPage} of ${totalPages}`}</span>
+          <button
+            onClick={nextPage}
+            disabled={currentPage === totalPages}
+            className={`px-4 py-2 border rounded-md ${
+              currentPage === totalPages
+                ? "text-gray-400 border-gray-300"
+                : "text-orange-500 border-orange-500 hover:bg-orange-500 hover:text-white"
+            }`}
+          >
+            Next
+          </button>
+        </div>
+      )}
     </div>
   );
 };
