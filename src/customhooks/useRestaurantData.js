@@ -24,12 +24,14 @@ const useRestaurantData = () => {
         const restaurants =
           card?.card?.card?.gridElements?.infoWithStyle?.restaurants || [];
         allRestaurants.push(...restaurants);
+        
       }
 
       // Set the combined data to state
       setListOfRes(allRestaurants);
       setSearchResult(allRestaurants);
-      console.log(allRestaurants);
+  
+      
     } catch (error) {
       console.error("Error fetching restaurant data:", error);
     }
