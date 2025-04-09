@@ -17,7 +17,7 @@ const RestaurantCard = ({ restaurants }) => {
   return (
     <div
       key={id}
-      className="bg-white rounded-2xl shadow-lg overflow-hidden transform transition-all duration-300 hover:scale-105 hover:shadow-2xl w-80 p-5 space-y-4"
+      className="bg-white-100 rounded-2xl shadow-lg overflow-hidden transform transition-all duration-300 hover:scale-105 hover:shadow-2xl w-80 p-5 space-y-4"
     >
       <div className="relative w-full">
         <img
