@@ -58,7 +58,7 @@ const Body = () => {
           </div>
 
           <button
-            className="px-6 py-3 bg-gradient-to-r from-gray-800 to-gray-900 text-white font-medium rounded-full shadow-lg hover:scale-105 transition-all"
+            className="px-6  py-3 bg-gradient-to-r from-gray-800 to-gray-900 text-white font-medium rounded-full shadow-lg hover:scale-105 transition-all"
             onClick={handleFilterTopRated}
           >
             ⭐ Top Rated Restaurants
@@ -76,7 +76,7 @@ const Body = () => {
 </div>
 
       {/* Footer */}
-      <Footer />
+      <Footer/>
     </>
   );
 };
