@@ -29,6 +29,7 @@ const useRestaurantData = () => {
       // Set the combined data to state
       setListOfRes(allRestaurants);
       setSearchResult(allRestaurants);
+      console.log(allRestaurants);
     } catch (error) {
       console.error("Error fetching restaurant data:", error);
     }
