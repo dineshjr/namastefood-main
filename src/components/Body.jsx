@@ -1,6 +1,6 @@
 import Shimmer from "./Shimmer";
 import Footer from "./Footer";
-import RestaurantCard from "./RestaurantCard";
+import RestaurantCard, { withTopRatedBadge } from "./RestaurantCard";
 import useRestaurantData from "../customhooks/useRestaurantData";
 import useStatus from "../customhooks/useStatus";
 
@@ -15,6 +15,8 @@ const Body = () => {
   } = useRestaurantData();
 
   const { onlineStatus } = useStatus();
+
+  const TopRatedCard = withTopRatedBadge(RestaurantCard);
 
   if (!onlineStatus)
     return (
@@ -58,7 +60,7 @@ const Body = () => {
           </div>
 
           <button
-            className="px-6 grid py-3 bg-gradient-to-r from-gray-800 to-gray-900 text-white font-medium rounded-full shadow-lg hover:scale-105 transition-all"
+            className="px-6 py-3 bg-gradient-to-r from-gray-800 to-gray-900 text-white font-medium rounded-full shadow-lg hover:scale-105 transition-all"
             onClick={handleFilterTopRated}
           >
             ⭐ Top Rated Restaurants
@@ -68,15 +70,16 @@ const Body = () => {
 
       {/* Restaurant List */}
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-8 p-4 m-4">
-  {searchResult.map((restaurant , index) => (
-  <RestaurantCard key={`${restaurant.info.id}-${index}`} restaurants={restaurant} />
-))}
-
-
-</div>
+        {searchResult.map((restaurant, index) => (
+          <TopRatedCard
+            key={`${restaurant.info.id}-${index}`}
+            restaurants={restaurant}
+          />
+        ))}
+      </div>
 
       {/* Footer */}
-      <Footer/>
+      <Footer />
     </>
   );
 };

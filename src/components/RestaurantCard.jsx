@@ -17,7 +17,7 @@ const RestaurantCard = ({ restaurants }) => {
   return (
     <div
       key={id}
-      className="bg-white-100 rounded-2xl shadow-lg overflow-hidden transform transition-all duration-300 hover:scale-105 hover:shadow-2xl w-80 p-5 space-y-4"
+      className="bg-white rounded-2xl shadow-lg overflow-hidden transform transition-all duration-300 hover:scale-105 hover:shadow-2xl w-80 p-5 space-y-4"
     >
       <div className="relative w-full">
         <img
@@ -57,6 +57,29 @@ const RestaurantCard = ({ restaurants }) => {
       </div>
     </div>
   );
+};
+
+// ✅ Higher Order Component to show "Top Rated" badge
+export const withTopRatedBadge = (WrappedComponent) => {
+  const EnhancedComponent = ({ restaurants, ...props }) => {
+    const isTopRated =
+      restaurants?.info?.totalRatingsString?.includes("+") || 
+      parseFloat(restaurants?.info?.avgRating) >= 4.3;
+
+    return (
+      <div className="relative">
+        {isTopRated && (
+          <div className="absolute top-3 right-3 bg-yellow-400 text-white text-xs font-bold px-3 py-1 rounded-full shadow z-10">
+            ⭐ Top Rated
+          </div>
+        )}
+        <WrappedComponent restaurants={restaurants} {...props} />
+      </div>
+    );
+  };
+
+  EnhancedComponent.displayName = `WithTopRatedBadge(${WrappedComponent.displayName || 'Component'})`;
+  return EnhancedComponent;
 };
 
 export default RestaurantCard;
