@@ -64,7 +64,7 @@ export const withTopRatedBadge = (WrappedComponent) => {
   const EnhancedComponent = ({ restaurants, ...props }) => {
     const isTopRated =
       restaurants?.info?.totalRatingsString?.includes("+") || 
-      parseFloat(restaurants?.info?.avgRating) >= 4.3;
+      parseFloat(restaurants?.info?.avgRating) >= 4.5;
 
     return (
       <div className="relative">
